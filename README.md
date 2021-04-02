@@ -1,4 +1,4 @@
-# CS311S20PID44
+# Activity-Scheduling-System
 Project Name: Time Table Generator
 
 
@@ -8,7 +8,7 @@ Project Name: Time Table Generator
 ***********************************************************************
 
 Project Configuration Guidelines (Step by Step):
-1.  Clone the project having PID: https://github.com/Ayeshacat/CS311S20PID44.git.
+1.  Clone the project having PID: https://github.com/rimshafayyaz/Activity-Scheduling-System.git
 2.  Download SQL server and create a new database.Copy the database text file in this.and make connection with the program in the login form.
 3.  For Login built a database in your SQL Server and pass the given query to your database.After that change the path of database in the project.  
 4.  Should have the XL file as input file. this file in already given in repostory.
