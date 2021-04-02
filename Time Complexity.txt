@@ -1,0 +1,235 @@
+
+------------------------------------------------------------------TIME TABLE GENERATOR--------------------------------------------------------------------------------
+
+	                                                            TIME COMPLEXITY
+
+
+Time Complexity:
+In following we will discuss the Time complexity of each function
+
+Function # 1
+Func ActivityScheduler (input: List of courseRecords, List of rooms)
+        {
+            this. courseRecords = courseRecords;	-----(1)
+            this. rooms = rooms;		---------(1)
+}
+TIME COMPLEXITY= (1)
+
+
+Function # 2
+
+
+Func ScheduleCourses (input List<CourseRecord> invalidCourseRecords,
+            List<CourseRecord> unscheduledCourseRecords)
+        {
+            CourseRecord.bubbleSort(courseRecords);		----(1)
+            foreach (CourseRecord cr in courseRecords)		-----(n)
+            {
+                if (! cr. hasValidStartEndTime ())			----(n-1)
+                {
+                    cr. errorMessage = "Invalid start time should be before end time.";	---(T(n))
+                    invalidCourseRecords.Add (cr);		-----( T(n))
+                    continue;		---( T(n))
+                }
+                bool scheduled = false;		----------(n-1)
+                foreach (Room room in rooms)		-----(n(n))
+                {
+                    try
+                    {
+                        room. bookCourseTimeslot (cr);	----------n(n-1)
+                        scheduled = true;		--------- n(n-1)					
+                        break;
+                    }
+                    catch (Room. InvalidTimeslotExecption exc)		-----n(n-1)
+                    {
+                        throw exc;
+                    }
+                    catch (Room. TimeslotTakenAlreadyExecption)	-------n(n-1)
+                    {
+                        continue;
+                    }
+                    catch (Room. NoTimeslotAvailableException)		----n(n-1)
+                    {
+                        continue;
+                    }
+                }
+                if (! scheduled) {unscheduledCourseRecords. Add(cr); 	n(n-1)
+}
+}
+	TIME COMPLEXITY= n(n)
+Function # 3
+        public void bookCourseTimeslot (CourseRecord cr) 
+        {
+            bool canFitAfterPerv = true;		----(1)
+            foreach (CourseRecord bcr in bookedCourses)		----------(n)
+            {
+                bool canFitBeforCur = false;	-----(n-1)
+                bool canFitAfterCur = false;	-------(n-1)
+
+                if (cr. endTime <= cr. startTime)		---------(n-1)
+                {
+                    throw new InvalidTimeslotExecption (String. Format("Invalid Timeslot start-end time: {0}", cr));		-----T(n)
+                }
+                else if (bcr. startTime < cr. startTime && cr. startTime < bcr. endTime ||
+                  bcr. startTime < cr. endTime && cr. endTime < bcr. endTime)	---(n-1)
+                {
+                    throw new TimeslotTakenAlreadyExecption (String. Format("Time overlap: {0}", bcr));	------T(n)
+                }
+
+                // can fit before?
+                if (cr. startTime < bcr. startTime && cr. endTime <= bcr. startTime)	----(n-1)
+                {
+                    canFitBeforCur = true;		-----T(n)
+                }
+
+                // can fit after
+                if (cr. startTime >= bcr. endTime && cr. endTime > bcr. endTime)	----(n-1)
+                {
+                    canFitAfterCur = true;		----T(n)
+                }
+
+                if (canFitAfterPerv && canFitBeforCur)		-----(n-1)
+                {
+                    bookedCourses [bookedCourses. IndexOf (bcr)] = cr;		----T(n)
+                    cr. room = this;		----T(n)
+                    return;
+                }
+
+                canFitAfterPerv = canFitAfterCur;		----(n-1)
+            }
+            if (canFitAfterPerv)		-----(1)
+            {
+                bookedCourses. Add(cr);		-----(T(1))
+                cr. room = this;		----(T(1))
+            }
+            else throw new NoTimeslotAvailableException ();		----(1)
+        }
+
+	TIME COMPLEXITY= n
+	
+Function # 4
+override public String ToString ()
+        {
+
+            String retval = "";		----------------------(1)
+            retval += "===================";		------------------(1)
+            retval += String. Format("\t{0}", RoomName);	-------------------------(1)
+            retval += String. Format("===================");		-----------------(1)
+            foreach (CourseRecord br in bookedCourses)		---------------(n)
+            {
+                retval += br + "\n";			-----------(n-1)
+            }
+            retval += String. Format("===================");	-------(1)
+            return retval;	-----------(1)
+        }
+	TIME COMPLEXITY= n
+
+Function # 5
+void loadInvalidCourseRecordListToDGV (List<CourseRecord> invalidCourseRecords, DataGridView gv)
+        {
+            System. Data. DataTable dt = new System. Data. DataTable();	-----(1)
+            dt. Columns. Add (DTC_TeacherName);		-----(1)
+            dt. Columns. Add(DTC_Subject);		-----(1)
+            dt. Columns. Add (DTC_Lecture);		-----(1)
+            dt. Columns. Add (DTC_CreditHour);		-----(1)
+            dt. Columns. Add (DTC_DayOfWeek);		-----(1)
+            dt. Columns. Add (DTC_StartTime);		-----(1)
+            dt. Columns. Add (DTC_EndTime);		-----(1)
+            dt. Columns. Add (DTC_ErrorMessage);		-----(1)
+
+            foreach (CourseRecord cr in invalidCourseRecords)		-----(n)
+            {
+                DataRow row = dt. NewRow ();		-----(n-1)
+                Row [CourseRecord. DTC_TeacherName] = cr. teacherName;		-----(n-1)
+                Row [CourseRecord. DTC_Subject] = cr. subject;		-----(n-1)
+                Row [CourseRecord. DTC_Lecture] = cr. lecture;		-----(n-1)
+                Row [CourseRecord. DTC_CreditHour] = cr. creditHour;	-----(n-1)
+  Row [CourseRecord. DTC_DayOfWeek] = cr. startTime.DayOfWeek. ToString ();	 -----(n-1)
+                Row [CourseRecord. DTC_StartTime] = cr. startTime;	-----(n-1)
+                Row [CourseRecord. DTC_EndTime] = cr. endTime;	-----(n-1)
+                Row [CourseRecord. DTC_ErrorMessage] = cr. errorMessage;		-----(n-1)
+                dt. Rows. Add(row);		-----(n-1)
+            }
+            gv. DataSource= dt;	-----(1)
+            gv. AutoSizeColumnsMode= DataGridViewAutoSizeColumnsMode. Fill;	-----(1)
+            gv. AutoResizeColumns ();		-----(1)
+        }
+
+		TIME COMPLEXITY= n
+Function # 6
+internal static List<CourseRecord> getCourseRecordListFromDGV (DataGridView gvCourseRecords,
+            List<CourseRecord> invalidCourseRecords)
+        {
+            List<CourseRecord> courseRecords = new List<CourseRecord>();		-----(1)
+            foreach (DataGridViewRow row in gvCourseRecords. Rows)	-----(n)
+            {
+                if (row. Cells [CourseRecord. DTC_TeacherName_CN]. Value== null) continue;	-----(n-1)
+                try
+                {
+                    string dayofweek =
+                        (string)row. Cells [CourseRecord. DTC_DayOfWeek_CN]. Value;	-----(n-1)
+                    CourseRecord cr = new CourseRecord (
+                        (string)row. Cells [CourseRecord. DTC_TeacherName_CN]. Value,
+                        (string)row. Cells [CourseRecord. DTC_Subject_CN]. Value,
+                        (string)row. Cells [CourseRecord. DTC_Lecture_CN]. Value,
+                        (string)row. Cells [CourseRecord. DTC_CreditHour_CN]. Value,
+                        (DateTime)CourseRecord. parseDateTime (dayofweek, (string)row. Cells [CourseRecord. DTC_StartTime_CN]. Value),
+                        (DateTime)CourseRecord. parseDateTime (dayofweek, (string)row. Cells [CourseRecord. DTC_EndTime_CN]. Value));		-----(n-1)
+                    courseRecords. Add(cr);		-----(n-1)
+                }
+                catch (CourseRecord. IncorrectDayTimeFormatException e)		-----(n-1)
+                {
+                    CourseRecord cr = new CourseRecord (		-----(n-1)
+                        (string)row. Cells [CourseRecord. DTC_TeacherName_CN]. Value, -----(n-1)
+                        (string)row. Cells [CourseRecord. DTC_Subject_CN]. Value,	-----(n-1)
+                        (string)row. Cells [CourseRecord. DTC_Lecture_CN]. Value,	-----(n-1)
+                        (string)row. Cells [CourseRecord. DTC_CreditHour_CN]. Value,	-----(n-1)
+                        DateTime. Today,	-----(n-1)
+                        DateTime. Today);	-----(n-1)
+                    cr. errorMessage = e. Message. ToString();	-----(n-1)
+                    invalidCourseRecords.Add(cr);	-----(n-1)
+                }
+            }
+            return courseRecords;		-----(1)
+        }
+
+		TIME COMPLEXITY= n
+Function # 7
+public static int SortCourseRecordByEndTimeHelper (CourseRecord a, CourseRecord b)
+        {
+            CourseRecord c1 = (CourseRecord)a;	-----(1)
+            CourseRecord c2 = (CourseRecord)b;	-----(1)
+
+            if (c1. endTime > c2.endTime)	-----(1)
+                return 1; 		-----T(1)
+
+            if (c1. endTime < c2. endTime)	-----(1)
+                return -1;	-----T(1)
+
+            else		-----(1)
+                return 0;		-----T(1)
+        }
+		TIME COMPLEXITY= 1
+Function # 8
+void bubbleSort (List<CourseRecord> courseRecords)
+        {
+            for (int i = 0; i < courseRecords. Count; i++)		-----(n)
+            {
+                for (int j = 0; j < courseRecords.Count; j++)	-----(n(n))
+                {
+                    if (CourseRecord. SortCourseRecordByEndTimeHelper (courseRecords[i], courseRecords[j]) < 0)	-----(n(n-1))
+                    {
+                        CourseRecord tmp = courseRecords[i];	-----(n(T(n-1))
+                        courseRecords[i] = courseRecords[j];	-----(n(T(n-1))
+                        courseRecords[j] = tmp;		-----(n(T(n-1))
+                    }
+                }
+            }
+        }
+		TIME COMPLEXITY= n(n)
+
+Total Time Complexity of Project= Sum of all the time complexity of functions
+	=1+ n²+n+n+n+n+1+ n²
+	= n²
+
+

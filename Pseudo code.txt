@@ -1,0 +1,320 @@
+The Project Starts with the CSV file as input.
+After that:
+Courses in input goes in list_courses
+Rooms in input goes in list_Rooms
+///////////////////////////////////code for this///////////////////////////////////
+Func ActivityScheduler (input: List of courseRecords, List of rooms)
+        {
+            this. courseRecords = courseRecords;
+            this. rooms = rooms;
+}
+
+After getting data in lists:
+Function to sort and check validation:
+Sort the courseRecords by their end time by using Bubble sort
+And also check the validation on courses: 
+•	Start time is less than end time
+If not generate error msg
+And also get rooms validations
+•	Check the valid time slot
+•	Check room is already taken or not
+•	Rooms are not available
+If these validations are not true send these classes to unscheduled table or invalid data according the conditions.
+///////////////code for this//////////////////
+Func ScheduleCourses (input List<CourseRecord> invalidCourseRecords,
+            List<CourseRecord> unscheduledCourseRecords)
+        {
+            CourseRecord.bubbleSort(courseRecords);
+            foreach (CourseRecord cr in courseRecords)
+            {
+                if (! cr. hasValidStartEndTime ())
+                {
+                    cr. errorMessage = "Invalid start time should be before end time.";
+                    invalidCourseRecords.Add (cr);
+                    continue;
+                }
+                bool scheduled = false;
+                foreach (Room room in rooms)
+                {
+                    try
+                    {
+                        room. bookCourseTimeslot (cr);
+                        scheduled = true;
+                        break;
+                    }
+                    catch (Room. InvalidTimeslotExecption exc)
+                    {
+                        throw exc;
+                    }
+                    catch (Room. TimeslotTakenAlreadyExecption)
+                    {
+                        continue;
+                    }
+                    catch (Room. NoTimeslotAvailableException)
+                    {
+                        continue;
+                    }
+                }
+                if (! scheduled) {unscheduledCourseRecords. Add(cr); 
+}
+}
+Now for the above function working we use these classes
+Room class and CourseRecord class
+
+ROOM CLASS:
+Firstly, we get data from CSV as Room name
+Then it will check all the validation
+And schedule classes in them according to their end time slots.
+If there is any lecture in the occurring the room and at the same time another lecture occurs it will not schedule in the same room it will move it into the second room until there are room available.
+But if unfortunately if there is no room available at that lecture time then put that lecture in the unscheduled table.
+Function to add or remove rooms are also available
+///////////////////////////code for this/////////////////////////
+class Room
+    {
+        internal static readonly string DTC_RoomName="Room Name";
+        internal static readonly string DTC_RoomName_CN = DTC_RoomName.Replace(" ", "");
+        public String RoomName;
+        List<CourseRecord> bookedCourses = new List<CourseRecord> ();
+        public void bookCourseTimeslot (CourseRecord cr) 
+        {
+            bool canFitAfterPerv = true;
+            foreach (CourseRecord bcr in bookedCourses)
+            {
+                bool canFitBeforCur = false;
+                bool canFitAfterCur = false;
+
+                if (cr. endTime <= cr. startTime)
+                {
+                    throw new InvalidTimeslotExecption (String. Format("Invalid Timeslot start-end time: {0}", cr));
+                }
+                else if (bcr. startTime < cr. startTime && cr. startTime < bcr. endTime ||
+                  bcr. startTime < cr. endTime && cr. endTime < bcr. endTime)
+                {
+                    throw new TimeslotTakenAlreadyExecption (String. Format("Time overlap: {0}", bcr));
+                }
+
+                // can fit before?
+                if (cr. startTime < bcr. startTime && cr. endTime <= bcr. startTime)
+                {
+                    canFitBeforCur = true;
+                }
+
+                // can fit after
+                if (cr. startTime >= bcr. endTime && cr. endTime > bcr. endTime)
+                {
+                    canFitAfterCur = true;
+                }
+
+                if (canFitAfterPerv && canFitBeforCur)
+                {
+                    bookedCourses [bookedCourses. IndexOf (bcr)] = cr;
+                    cr. room = this;
+                    return;
+                }
+
+                canFitAfterPerv = canFitAfterCur;
+            }
+            if (canFitAfterPerv)
+            {
+                bookedCourses. Add(cr);
+                cr. room = this;
+            }
+            else throw new NoTimeslotAvailableException ();
+        }
+        override public String ToString ()
+        {
+
+            String retval = "";
+            retval += "===================";
+            retval += String. Format("\t{0}", RoomName);
+            retval += String. Format("===================");
+            foreach (CourseRecord br in bookedCourses)
+            {
+                retval += br + "\n";
+            }
+            retval += String. Format("===================");
+            return retval;
+        }
+        public class TimeslotTakenAlreadyExecption: Exception {
+            public TimeslotTakenAlreadyExecption (string msg): base(msg) {}
+        }
+        public class InvalidTimeslotExecption: Exception {
+            public InvalidTimeslotExecption (string msg): base(msg) {}
+        }
+        public class NoTimeslotAvailableException: Exception {
+            public NoTimeslotAvailableException (): base () {}
+        }
+        };
+CourseRecord Class:
+Firstly, will get all the data from input file into the grid columns
+Check all the validations on record if there is any empty record if will show error msg
+Every record in each column should be according to their respective format otherwise the data with invalid format will send in invalid table.
+user can add or remove record manually as will.
+If user change data manually in the file user can export that updated excel file in his desktop
+Sort the record by their end time using BUBBLE SORT
+
+/////////////////////////////////////////////Code for this///////////////////////////////////////////
+
+class CourseRecord
+    {
+
+        internal static void loadInvalidCourseRecordListToDGV (List<CourseRecord> invalidCourseRecords, DataGridView gv)
+        {
+            System. Data. DataTable dt = new System. Data. DataTable();
+            dt. Columns. Add (DTC_TeacherName);
+            dt. Columns. Add(DTC_Subject);
+            dt. Columns. Add (DTC_Lecture);
+            dt. Columns. Add (DTC_CreditHour);
+            dt. Columns. Add (DTC_DayOfWeek);
+            dt. Columns. Add (DTC_StartTime);
+            dt. Columns. Add (DTC_EndTime);
+            dt. Columns. Add (DTC_ErrorMessage);
+
+            foreach (CourseRecord cr in invalidCourseRecords)
+            {
+                DataRow row = dt. NewRow ();
+                Row [CourseRecord. DTC_TeacherName] = cr. teacherName;
+                Row [CourseRecord. DTC_Subject] = cr. subject;
+                Row [CourseRecord. DTC_Lecture] = cr. lecture;
+                Row [CourseRecord. DTC_CreditHour] = cr. creditHour;
+                Row [CourseRecord. DTC_DayOfWeek] = cr. startTime.DayOfWeek. ToString ();
+                Row [CourseRecord. DTC_StartTime] = cr. startTime;
+                Row [CourseRecord. DTC_EndTime] = cr. endTime;
+                Row [CourseRecord. DTC_ErrorMessage] = cr. errorMessage;
+                dt. Rows. Add(row);
+            }
+            gv. DataSource= dt;
+            gv. AutoSizeColumnsMode= DataGridViewAutoSizeColumnsMode. Fill;
+            gv. AutoResizeColumns ();
+        }
+
+        internal static List<CourseRecord> getCourseRecordListFromDGV (DataGridView gvCourseRecords,
+            List<CourseRecord> invalidCourseRecords)
+        {
+            List<CourseRecord> courseRecords = new List<CourseRecord>();
+            foreach (DataGridViewRow row in gvCourseRecords. Rows)
+            {
+                if (row. Cells [CourseRecord. DTC_TeacherName_CN]. Value== null) continue;
+                try
+                {
+                    string dayofweek =
+                        (string)row. Cells [CourseRecord. DTC_DayOfWeek_CN]. Value;
+                    CourseRecord cr = new CourseRecord (
+                        (string)row. Cells [CourseRecord. DTC_TeacherName_CN]. Value,
+                        (string)row. Cells [CourseRecord. DTC_Subject_CN]. Value,
+                        (string)row. Cells [CourseRecord. DTC_Lecture_CN]. Value,
+                        (string)row. Cells [CourseRecord. DTC_CreditHour_CN]. Value,
+                        (DateTime)CourseRecord. parseDateTime (dayofweek, (string)row. Cells [CourseRecord. DTC_StartTime_CN]. Value),
+                        (DateTime)CourseRecord. parseDateTime (dayofweek, (string)row. Cells [CourseRecord. DTC_EndTime_CN]. Value));
+                    courseRecords. Add(cr);
+                }
+                catch (CourseRecord. IncorrectDayTimeFormatException e)
+                {
+                    CourseRecord cr = new CourseRecord (
+                        (string)row. Cells [CourseRecord. DTC_TeacherName_CN]. Value,
+                        (string)row. Cells [CourseRecord. DTC_Subject_CN]. Value,
+                        (string)row. Cells [CourseRecord. DTC_Lecture_CN]. Value,
+                        (string)row. Cells [CourseRecord. DTC_CreditHour_CN]. Value,
+                        DateTime. Today,
+                        DateTime. Today);
+                    cr. errorMessage = e. Message. ToString();
+                    invalidCourseRecords.Add(cr);
+                }
+            }
+            return courseRecords;
+
+        }
+
+        internal static void loadCourseRecordListToDGV (List<CourseRecord> courseRecords, DataGridView gv, bool showRoom = true, bool showOnlyIfHasRoom = false)
+        {
+            System. Data. DataTable dt = new System. Data. DataTable();
+            dt. Columns. Add (DTC_TeacherName);
+            dt. Columns. Add (DTC_Subject);
+            dt. Columns. Add (DTC_Lecture);
+            dt. Columns. Add (DTC_CreditHour);
+            dt. Columns. Add (DTC_DayOfWeek);
+            dt. Columns. Add (DTC_StartTime);
+            dt. Columns. Add (DTC_EndTime);
+            if (showRoom) dt. Columns. Add (DTC_Room);
+
+            foreach (CourseRecord cr in courseRecords)
+            {
+                if (showOnlyIfHasRoom && cr. room == null) continue;
+                DataRow row = dt. NewRow ();
+                Row [CourseRecord. DTC_TeacherName] = cr. teacherName;
+                Row [CourseRecord. DTC_Subject] = cr. subject;
+                Row [CourseRecord. DTC_Lecture] = cr. lecture;
+                Row [CourseRecord. DTC_CreditHour] = cr. creditHour;
+                if (showRoom) row [CourseRecord. DTC_Room] = (cr. room! = null)? cr. room. RoomName: "";
+                row [CourseRecord. DTC_DayOfWeek] = cr. startTime. DayOfWeek. ToString ();
+                row [CourseRecord. DTC_StartTime] = cr. startTime;
+                row [CourseRecord. DTC_EndTime] = cr. endTime;
+                dt. Rows. Add (row);
+            }
+            gv. DataSource = dt;
+            gv. AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode. Fill;
+            gv. AutoResizeColumns ();
+
+        }
+
+        internal static void exportToSheet (List<CourseRecord> invalidCourseRecords, Worksheet xlNewSheet)
+        {
+            // write the header
+            xlNewSheet. Cells [1, 1]. Value = DTC_TeacherName; xlNewSheet. Cells [1, 2]. Value = DTC_Subject; xlNewSheet. Cells [1, 3]. Value = DTC_Room;
+            xlNewSheet. Cells [1, 4]. Value = DTC_StartTime; xlNewSheet. Cells [1, 5]. Value = DTC_EndTime; xlNewSheet. Cells [1, 6]. Value = DTC_Lecture;
+            xlNewSheet. Cells [1, 7]. Value = DTC_CreditHour;
+
+            int i = 2;
+            foreach (CourseRecord cr in invalidCourseRecords)
+            {
+                xlNewSheet. Cells [i, 1]. Value = cr. teacherName; xlNewSheet. Cells [i, 2]. Value = cr. subject;
+                if (cr. room! = null) xlNewSheet. Cells [i, 3]. Value = cr. room. RoomName;
+                xlNewSheet. Cells [i, 4]. Value = cr. startTime; xlNewSheet. Cells [i, 5]. Value = cr. endTime; xlNewSheet. Cells[i, 6].Value = cr.lecture;
+                xlNewSheet. Cells [i, 7]. Value = cr. creditHour;
+                i++;
+            }
+        }
+
+
+        public static int SortCourseRecordByEndTimeHelper (CourseRecord a, CourseRecord b)
+        {
+            CourseRecord c1 = (CourseRecord)a;
+            CourseRecord c2 = (CourseRecord)b;
+
+            if (c1. endTime > c2.endTime)
+                return 1;
+
+            if (c1. endTime < c2. endTime)
+                return -1;
+
+            else
+                return 0;
+        }
+        
+
+        internal bool hasValidStartEndTime ()
+        {
+            return startTime < endTime;
+        }
+
+       
+        internal static void bubbleSort (List<CourseRecord> courseRecords)
+        {
+            for (int i = 0; i < courseRecords. Count; i++)
+            {
+                for (int j = 0; j < courseRecords.Count; j++)
+                {
+                    if (CourseRecord. SortCourseRecordByEndTimeHelper (courseRecords[i], courseRecords[j]) < 0)
+                    {
+                        CourseRecord tmp = courseRecords[i];
+                        courseRecords[i] = courseRecords[j];
+                        courseRecords[j] = tmp;
+                    }
+                }
+            }
+        }
+        
+    }
+
+
+

@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1169
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActivityScheduling", "ActivityScheduling\ActivityScheduling.csproj", "{97CE18C8-D645-4026-B816-7C400D1D5535}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "TimeTableSetup", "TimeTableSetup\TimeTableSetup.vdproj", "{1F168F06-3287-4A1F-9784-05A8D1F3BECE}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup1", "Setup1\Setup1.vdproj", "{A52CC518-CA9E-437A-95D4-69B039973A3D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{97CE18C8-D645-4026-B816-7C400D1D5535}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97CE18C8-D645-4026-B816-7C400D1D5535}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97CE18C8-D645-4026-B816-7C400D1D5535}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97CE18C8-D645-4026-B816-7C400D1D5535}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F168F06-3287-4A1F-9784-05A8D1F3BECE}.Debug|Any CPU.ActiveCfg = Debug
+		{1F168F06-3287-4A1F-9784-05A8D1F3BECE}.Release|Any CPU.ActiveCfg = Release
+		{A52CC518-CA9E-437A-95D4-69B039973A3D}.Debug|Any CPU.ActiveCfg = Debug
+		{A52CC518-CA9E-437A-95D4-69B039973A3D}.Release|Any CPU.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {694C7D5E-21FB-4829-BD7A-839CDF7F6468}
+	EndGlobalSection
+EndGlobal
